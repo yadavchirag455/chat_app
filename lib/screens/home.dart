@@ -102,11 +102,23 @@ class _HomeState extends State<Home> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data!.docs[index];
-                  return ChatRoomListTile(
-                    chatRoomId: ds.id,
-                    myUserName: myUsername!,
-                    lastmessage: ds["lastMessage"],
-                    time: ds["lastMessageSendTs"],
+                  return GestureDetector(
+                    onTap: () {
+                      log('hellllllllllllllllllllllllllll +${ds["users"][1]}');
+
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                  name: ds["users"][1].toString().toLowerCase(),
+                                  username: ds["users"][1])));
+                    },
+                    child: ChatRoomListTile(
+                      chatRoomId: ds.id,
+                      myUserName: myUsername!,
+                      lastmessage: ds["lastMessage"],
+                      time: ds["lastMessageSendTs"],
+                    ),
                   );
                 },
               )

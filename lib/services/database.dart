@@ -113,4 +113,13 @@ class DatabaseMethod {
     // log('this log is in database file' + resulte.docs.length.toString());
     return resulte;
   }
+
+  Future<Stream<QuerySnapshot>> getDetailsByChatroomId(chatRoomId) async {
+    return FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatRoomId)
+        .collection("chats")
+        .orderBy("users")
+        .snapshots();
+  }
 }
