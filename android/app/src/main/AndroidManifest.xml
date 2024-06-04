@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="chat_app_yt_shivam_gupta_may"
+        android:label="Chat App"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
