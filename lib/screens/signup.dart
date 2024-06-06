@@ -27,15 +27,17 @@ class _SignupState extends State<Signup> {
       log('You have enter into registraion function with ${_emailController.text}  ${_passWordController.text}');
       try {
         log('${_passWordController} ${_emailController}');
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-                email: _emailController.text,
-                password: _passWordController.text);
+
+        // UserCredential userCredential =
+
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _emailController.text, password: _passWordController.text);
 
         log('${_passWordController} ${_emailController}');
 
-        String id = randomAlphaNumeric(10);
-        String user = _emailController.text.replaceAll('@gmail.com', '');
+        String id = randomNumeric(5);
+        String user = _nameController.text;
+        // _emailController.text.replaceAll('@gmail.com', '');
         String updateUserName = user.toUpperCase();
         String firstletter = user.substring(0, 1).toUpperCase();
 

@@ -21,6 +21,7 @@ class _SingInState extends State<SingIn> {
   String? name;
   String? email;
   String? id;
+  String? userName;
 
   userLogIn() async {
     try {
@@ -33,8 +34,9 @@ class _SingInState extends State<SingIn> {
       name = "${querySnapshot.docs[0]["name"]}";
       email = "${querySnapshot.docs[0]["email"]}";
       id = "${querySnapshot.docs[0]["id"]}";
+      userName = "${querySnapshot.docs[0]["username"]}";
 
-      await SharedPreferanceHelper().saveUserName(name!);
+      await SharedPreferanceHelper().saveUserName(userName!);
       await SharedPreferanceHelper().saveUserEmail(email!);
       await SharedPreferanceHelper().saveUserId(id!);
       await SharedPreferanceHelper().saveUserDisplayName(name!);

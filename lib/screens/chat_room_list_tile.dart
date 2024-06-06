@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../services/database.dart';
+import '../services/shared_preferance.dart';
 
 class ChatRoomListTile extends StatefulWidget {
   final String lastmessage, chatRoomId, myUserName, time;
@@ -17,29 +18,47 @@ class ChatRoomListTile extends StatefulWidget {
 }
 
 class _ChatRoomListTileState extends State<ChatRoomListTile> {
-  String? name, username, id;
+  String? name, username, id, testingId;
+
+  // this testing id is just for checking my user id
+
+  onLoadFunction() async {
+    testingId = await SharedPreferanceHelper().getUserId();
+    setState(() {});
+    log('ChatRoomListTile Page // onload functionn  // my user id ${testingId}');
+    getThisUserInfo();
+  }
 
   getThisUserInfo() async {
-    // log('chat_room_list_tile xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx+${username.toString()}');
-    username = widget.chatRoomId.substring(0, widget.chatRoomId.indexOf('_'));
+    log(" Chat_Room_list_tile // my id=" + testingId.toString());
+    id = widget.chatRoomId.substring(0, widget.chatRoomId.indexOf('_')) ==
+            testingId.toString()
+        ? widget.chatRoomId.substring(6, 11)
+        : widget.chatRoomId.substring(0, widget.chatRoomId.indexOf('_'));
+
+    log('ChatroomListTile //  getthis userinfo // others id = $id');
+
+    DocumentSnapshot document =
+        await FirebaseFirestore.instance.collection("users").doc(id).get();
+
+    username = document.get('username');
+
+    log('ChatroomListTile //  getthis userinfo // others username = $username');
 
     QuerySnapshot querySnapshot =
         await DatabaseMethod().getUserByUsername(username!.toUpperCase());
 
     name = "${querySnapshot.docs[0]["name"]}";
 
-    id = "${querySnapshot.docs[0]["id"]}";
-    // log('${querySnapshot.docs[0]["username"]} chat_room_list_tile sghvdgasgagagdhawg :: ${widget.chatRoomId.substring(0, widget.chatRoomId.indexOf('_'))}');
-
     setState(() {});
 
-    log("this log is in ChatRoomListTile ====  ${querySnapshot.docs[0]["name"]}");
-    log("this log is in ChatRoomListTile ====  ${querySnapshot.docs[0]["id"]}");
+    log("this log is in ChatRoomListTile  Samne walaaa  ====  ${querySnapshot.docs[0]["name"]}");
+    log("this log is in ChatRoomListTile  Saamnw walaa  ====  ${querySnapshot.docs[0]["id"]}");
   }
 
   @override
   void initState() {
-    getThisUserInfo();
+    onLoadFunction();
     super.initState();
   }
 

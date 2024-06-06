@@ -1,8 +1,11 @@
 import 'dart:developer';
+import 'package:chat_app_yt_shivam_gupta_may/screens/signin.dart';
 import 'package:chat_app_yt_shivam_gupta_may/services/database.dart';
 import 'package:chat_app_yt_shivam_gupta_may/services/shared_preferance.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'chat_page.dart';
 import 'chat_room_list_tile.dart';
 
@@ -15,11 +18,42 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool searchTab = false;
 
-  String? myName, myEmail, myUsername, myId;
+  String? myName,
+      myEmail,
+      myUsername,
+      myId,
+      id,
+      username,
+      name,
+      ExtraChatRoomId;
   Stream? chatRoomStream;
 
   var querySearchList = [];
   var tempSearchList = [];
+
+  Future<String> getChatRoomIdBYUsername(String a, String b) async {
+    log("Home Page     //  getChatRoomIdByUsername //  checking incomnning data my username $a");
+    log("Home Page    //  getChatRoomIdByUsername //  checking incomnning data  others username $b");
+    String? myId = await SharedPreferanceHelper().getUserId();
+
+    QuerySnapshot secondPersonChatUser =
+        await DatabaseMethod().getUserByUsername(b);
+
+    String id = secondPersonChatUser.docs[0]["id"];
+
+    setState(() {});
+
+    log("Home Page // get Chatroomid // checking my usser id  " + myId!);
+
+    log(" Home Page // get Chatroomid // checking others  usser id  ${id}  ");
+
+    // .codeUnitAt(0)      .codeUnitAt(0)
+    if (int.parse(id) > int.parse(myId!)) {
+      return "${myId.toString()}_${id.toString()}";
+    } else {
+      return "${id.toString()}_${myId.toString()}";
+    }
+  }
 
   onTheLoad() async {
     // await getSharedPref();
@@ -29,30 +63,45 @@ class _HomeState extends State<Home> {
     myId = await SharedPreferanceHelper().getUserId();
 
     setState(() {});
+
+    log("HomePage    // onload function // shareprefarmce data");
     log('myUsername :: $myUsername');
     log('myName :: $myName');
     log('myEmail ::$myEmail');
     log('myId:: $myId');
-    log('This log is in onTheLoad function all the data is from Shared Pref');
 
     chatRoomStream = await DatabaseMethod().getChatRooms();
     setState(() {});
-    // log(chatRoomStream!.length.toString());
-    // log('logggggg1');
   }
 
-  String getChatRoomIdBYUsername(String a, String b) {
-    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-      return "$b\_$a";
-    } else {
-      return "$a\_$b"; // a and b ko interchange kiya hai
-    }
+  getThisUserInfo() async {
+    log(" Chat_Room_list_tile // my id=" + myId.toString());
+    id = ExtraChatRoomId!.substring(0, ExtraChatRoomId!.indexOf('_')) ==
+            myId.toString()
+        ? ExtraChatRoomId!.substring(6, 11)
+        : ExtraChatRoomId!.substring(0, ExtraChatRoomId!.indexOf('_'));
+
+    log('ChatroomListTile //  getthis userinfo // others id = $id');
+
+    DocumentSnapshot document =
+        await FirebaseFirestore.instance.collection("users").doc(id).get();
+
+    username = document.get('username');
+
+    log('ChatroomListTile //  getthis userinfo // others username = $username');
+
+    QuerySnapshot querySnapshot =
+        await DatabaseMethod().getUserByUsername(username!.toUpperCase());
+
+    name = "${querySnapshot.docs[0]["name"]}";
+
+    setState(() {});
+
+    log("Home Page // Get This user Info   ====  ${querySnapshot.docs[0]["name"]}");
+    log("Home page // Get other user info   ====  ${querySnapshot.docs[0]["id"]}");
   }
 
   intiateSearch(String value) {
-    // if (value.length == 0) {
-    // log('value :: $value');
-
     setState(() {
       querySearchList = [];
       tempSearchList = [];
@@ -61,9 +110,6 @@ class _HomeState extends State<Home> {
     setState(() {
       searchTab = true;
     });
-
-    var capitalizadValue =
-        value.substring(0, 1).toUpperCase() + value.substring(1);
 
     if (querySearchList.isEmpty && value.length == 1) {
       // log('if');
@@ -90,6 +136,7 @@ class _HomeState extends State<Home> {
     }
   }
 
+  // ye home page ke list ka hai
   Widget ChatRoomList() {
     return StreamBuilder(
       stream: chatRoomStream,
@@ -104,18 +151,27 @@ class _HomeState extends State<Home> {
                   DocumentSnapshot ds = snapshot.data!.docs[index];
                   return GestureDetector(
                     onTap: () {
-                      log('hellllllllllllllllllllllllllll +${ds["users"][1]}');
+                      log('Home Page // ChatRoomList // Others name is  +${ds["users"][1]}');
+
+                      ExtraChatRoomId = ds.id;
+                      setState(() {});
 
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => ChatPage(
-                                  name: ds["users"][1].toString().toLowerCase(),
-                                  username: ds["users"][1])));
+                                  name:
+                                      ds["users"][0].toString().toLowerCase() ==
+                                              myName!.toLowerCase()
+                                          ? ds["users"][1]
+                                          : ds["users"][0].toString(),
+                                  username: ds["users"][0] == myUsername
+                                      ? ds["users"][1]
+                                      : ds["users"][0])));
                     },
                     child: ChatRoomListTile(
                       chatRoomId: ds.id,
-                      myUserName: myUsername!,
+                      myUserName: ds["users"][1].toString().toLowerCase(),
                       lastmessage: ds["lastMessage"],
                       time: ds["lastMessageSendTs"],
                     ),
@@ -133,7 +189,8 @@ class _HomeState extends State<Home> {
       onTap: () async {
         searchTab = false;
         setState(() {});
-        var chatRoomId = getChatRoomIdBYUsername(myUsername!, data["username"]);
+        var chatRoomId =
+            await getChatRoomIdBYUsername(myUsername!, data["username"]);
 
         Map<String, dynamic> chatRoomInfoMap = {
           "users": [myUsername, data["username"]]
@@ -146,7 +203,9 @@ class _HomeState extends State<Home> {
             MaterialPageRoute(
                 builder: (context) => ChatPage(
                       name: data["name"],
-                      username: data["username"],
+                      username: data["username"] == myUsername
+                          ? name!.toUpperCase()
+                          : data['username'],
                     )));
       },
       child: Container(
@@ -191,6 +250,23 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<void> clearSharedPreferences() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    print("SharedPreferences data cleared!");
+  }
+
+  void _signOut() async {
+    FirebaseAuth.instance.currentUser;
+
+    await clearSharedPreferences();
+
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SingIn()));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -227,8 +303,9 @@ class _HomeState extends State<Home> {
                               fontWeight: FontWeight.w500,
                               fontSize: 20),
                         ))
-                      : const Text(
-                          'ChatApp',
+                      : Text(
+                          'ChatApp\nHi!! $myName'
+                          '',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 22,
@@ -261,7 +338,22 @@ class _HomeState extends State<Home> {
                                 Icons.search,
                                 color: Color(0xFFc199cd),
                               )),
-                  )
+                  ),
+                  GestureDetector(
+                      onTap: () {
+                        log('Tapped // Logout Button // Home Page');
+
+                        _signOut();
+                      },
+                      child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                              color: const Color(0xFF3a2144),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Icon(
+                            Icons.logout,
+                            color: Color(0xFFc199cd),
+                          )))
                 ],
               ),
             ),

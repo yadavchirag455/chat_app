@@ -81,7 +81,7 @@ class DatabaseMethod {
             .where("users", arrayContains: myUsername)
             .get();
 
-        log('----------------querySnapshot--------- ${querySnapshot.docs.length}');
+        log('  database page // getChatRoom method // Checking no of List= ${querySnapshot.docs.length}');
 
         if (querySnapshot.docs.isNotEmpty) {
           print(querySnapshot.docs.first.data());

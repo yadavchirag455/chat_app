@@ -16,7 +16,7 @@ class SharedPreferanceHelper {
   }
 
   // here is Username all are capitals
-  static String userNamekey = "USERNAMEKEy";
+  static String userNamekey = "USERNAMEKEY";
 
   Future<bool> saveUserName(String getUserName) async {
     SharedPreferences sp = await SharedPreferences.getInstance();

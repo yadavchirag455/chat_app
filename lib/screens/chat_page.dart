@@ -26,20 +26,21 @@ class _ChatPageState extends State<ChatPage> {
     myUserName = await SharedPreferanceHelper().getUserName();
     myName = await SharedPreferanceHelper().getUserDisplayName();
     myEmailId = await SharedPreferanceHelper().getUserEmail();
-    chatRoomId = await getChatRoomIdBYUsername(widget.username, myUserName!);
+    chatRoomId = await getChatRoomIdBYUsername(myUserName!, widget.username);
     setState(() {});
-  }
 
-  @override
-  void initState() {
-    onTheLoad();
-    super.initState();
+    log(" Chat Page  // get the Share pewfwrance function  // checking my Data which is stored is write or wrong");
+    log("Others username = $widget.username");
+    log(myUserName!);
+    log(myName!);
+    log(myEmailId!);
+    log(chatRoomId!);
   }
 
   onTheLoad() async {
     await getTheSharedPref();
     await getAndSetMessages();
-    // log('==================================================' + widget.username);
+
     setState(() {});
   }
 
@@ -128,17 +129,42 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  String getChatRoomIdBYUsername(String a, String b) {
-    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-      return "$b\_$a";
+  Future<String> getChatRoomIdBYUsername(String a, String b) async {
+    log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data my Username $a");
+    log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data others Usernaemm $b");
+    String? myId = await SharedPreferanceHelper().getUserId();
+    // String? secondPersonUsernameChatUser =
+    //     (await DatabaseMethod().getUserByUsername(a)) as String?;
+
+    QuerySnapshot secondPersonChatUser =
+        await DatabaseMethod().getUserByUsername(b);
+
+    String id = secondPersonChatUser.docs[0]["id"];
+
+    setState(() {});
+
+    log("MyID  " + myId!);
+
+    log(" Second Person  on chatpage ${id}  ");
+
+    // .codeUnitAt(0)      .codeUnitAt(0)
+    if (int.parse(id) > int.parse(myId!)) {
+      log((id.codeUnitAt(0) > myId!.codeUnitAt(0)).toString());
+      return "${myId.toString()}_${id.toString()}";
     } else {
-      return "$a\_$b";
+      return "${id.toString()}_${myId.toString()}";
     }
   }
 
   getAndSetMessages() async {
     messageStream = await DatabaseMethod().getChatRoomMessage(chatRoomId);
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    onTheLoad();
+    super.initState();
   }
 
   @override
