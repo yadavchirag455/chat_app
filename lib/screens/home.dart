@@ -26,14 +26,15 @@ class _HomeState extends State<Home> {
       username,
       name,
       ExtraChatRoomId;
+
   Stream? chatRoomStream;
 
   var querySearchList = [];
   var tempSearchList = [];
 
   Future<String> getChatRoomIdBYUsername(String a, String b) async {
-    log("Home Page     //  getChatRoomIdByUsername //  checking incomnning data my username $a");
-    log("Home Page    //  getChatRoomIdByUsername //  checking incomnning data  others username $b");
+    // log("Home Page     //  getChatRoomIdByUsername //  checking incomnning data my username $a");
+    // log("Home Page    //  getChatRoomIdByUsername //  checking incomnning data  others username $b");
     String? myId = await SharedPreferanceHelper().getUserId();
 
     QuerySnapshot secondPersonChatUser =
@@ -43,9 +44,9 @@ class _HomeState extends State<Home> {
 
     setState(() {});
 
-    log("Home Page // get Chatroomid // checking my usser id  " + myId!);
-
-    log(" Home Page // get Chatroomid // checking others  usser id  ${id}  ");
+    // log("Home Page // get Chatroomid // checking my usser id  " + myId!);
+    //
+    // log(" Home Page // get Chatroomid // checking others  usser id  ${id}  ");
 
     // .codeUnitAt(0)      .codeUnitAt(0)
     if (int.parse(id) > int.parse(myId!)) {
@@ -64,31 +65,31 @@ class _HomeState extends State<Home> {
 
     setState(() {});
 
-    log("HomePage    // onload function // shareprefarmce data");
-    log('myUsername :: $myUsername');
-    log('myName :: $myName');
-    log('myEmail ::$myEmail');
-    log('myId:: $myId');
+    // log("HomePage    // onload function // shareprefarmce data");
+    // log('myUsername :: $myUsername');
+    // log('myName :: $myName');
+    // log('myEmail ::$myEmail');
+    // log('myId:: $myId');
 
     chatRoomStream = await DatabaseMethod().getChatRooms();
     setState(() {});
   }
 
   getThisUserInfo() async {
-    log(" Chat_Room_list_tile // my id=" + myId.toString());
+    // log(" Chat_Room_list_tile // my id=" + myId.toString());
     id = ExtraChatRoomId!.substring(0, ExtraChatRoomId!.indexOf('_')) ==
             myId.toString()
         ? ExtraChatRoomId!.substring(6, 11)
         : ExtraChatRoomId!.substring(0, ExtraChatRoomId!.indexOf('_'));
 
-    log('ChatroomListTile //  getthis userinfo // others id = $id');
+    // log('ChatroomListTile //  getthis userinfo // others id = $id');
 
     DocumentSnapshot document =
         await FirebaseFirestore.instance.collection("users").doc(id).get();
 
     username = document.get('username');
 
-    log('ChatroomListTile //  getthis userinfo // others username = $username');
+    // log('ChatroomListTile //  getthis userinfo // others username = $username');
 
     QuerySnapshot querySnapshot =
         await DatabaseMethod().getUserByUsername(username!.toUpperCase());
@@ -97,8 +98,8 @@ class _HomeState extends State<Home> {
 
     setState(() {});
 
-    log("Home Page // Get This user Info   ====  ${querySnapshot.docs[0]["name"]}");
-    log("Home page // Get other user info   ====  ${querySnapshot.docs[0]["id"]}");
+    // log("Home Page // Get This user Info   ====  ${querySnapshot.docs[0]["name"]}");
+    // log("Home page // Get other user info   ====  ${querySnapshot.docs[0]["id"]}");
   }
 
   intiateSearch(String value) {
@@ -151,7 +152,7 @@ class _HomeState extends State<Home> {
                   DocumentSnapshot ds = snapshot.data!.docs[index];
                   return GestureDetector(
                     onTap: () {
-                      log('Home Page // ChatRoomList // Others name is  +${ds["users"][1]}');
+                      // log('Home Page // ChatRoomList // Others name is  +${ds["users"][1]}');
 
                       ExtraChatRoomId = ds.id;
                       setState(() {});

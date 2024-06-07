@@ -29,8 +29,8 @@ class _ChatPageState extends State<ChatPage> {
     chatRoomId = await getChatRoomIdBYUsername(myUserName!, widget.username);
     setState(() {});
 
-    log(" Chat Page  // get the Share pewfwrance function  // checking my Data which is stored is write or wrong");
-    log("Others username = $widget.username");
+    // log(" Chat Page  // get the Share pewfwrance function  // checking my Data which is stored is write or wrong");
+    // log("Others username = $widget.username");
     log(myUserName!);
     log(myName!);
     log(myEmailId!);
@@ -130,8 +130,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<String> getChatRoomIdBYUsername(String a, String b) async {
-    log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data my Username $a");
-    log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data others Usernaemm $b");
+    // log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data my Username $a");
+    // log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data others Usernaemm $b");
     String? myId = await SharedPreferanceHelper().getUserId();
     // String? secondPersonUsernameChatUser =
     //     (await DatabaseMethod().getUserByUsername(a)) as String?;
@@ -143,13 +143,13 @@ class _ChatPageState extends State<ChatPage> {
 
     setState(() {});
 
-    log("MyID  " + myId!);
-
-    log(" Second Person  on chatpage ${id}  ");
+    // log("MyID  " + myId!);
+    //
+    // log(" Second Person  on chatpage ${id}  ");
 
     // .codeUnitAt(0)      .codeUnitAt(0)
     if (int.parse(id) > int.parse(myId!)) {
-      log((id.codeUnitAt(0) > myId!.codeUnitAt(0)).toString());
+      log((id.codeUnitAt(0) > myId.codeUnitAt(0)).toString());
       return "${myId.toString()}_${id.toString()}";
     } else {
       return "${id.toString()}_${myId.toString()}";
@@ -191,7 +191,7 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   GestureDetector(
                       onTap: () {
-                        log('back button in chat ---- basically on chat page is tapped');
+                        // log('back button in chat ---- basically on chat page is tapped');
                         Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (context) => Home()));
                       },

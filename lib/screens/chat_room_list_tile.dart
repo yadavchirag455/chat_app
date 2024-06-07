@@ -25,7 +25,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
   onLoadFunction() async {
     testingId = await SharedPreferanceHelper().getUserId();
     setState(() {});
-    log('ChatRoomListTile Page // onload functionn  // my user id ${testingId}');
+    // log('ChatRoomListTile Page // onload functionn  // my user id ${testingId}');
     getThisUserInfo();
   }
 

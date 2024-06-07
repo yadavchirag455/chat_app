@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:chat_app_yt_shivam_gupta_may/services/shared_preferance.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -71,7 +70,7 @@ class DatabaseMethod {
   Future<Stream<QuerySnapshot>> getChatRooms() async {
     try {
       String? myUsername = await SharedPreferanceHelper().getUserName();
-      log('database getChatRoom username:: $myUsername');
+      // log('database getChatRoom username:: $myUsername');
 
       if (myUsername != null) {
         // Perform an initial fetch to log the current chatrooms
@@ -81,11 +80,11 @@ class DatabaseMethod {
             .where("users", arrayContains: myUsername)
             .get();
 
-        log('  database page // getChatRoom method // Checking no of List= ${querySnapshot.docs.length}');
+        // log('  database page // getChatRoom method // Checking no of List= ${querySnapshot.docs.length}');
 
         if (querySnapshot.docs.isNotEmpty) {
           print(querySnapshot.docs.first.data());
-          log('database getChatRoom ${querySnapshot.docs.first.data()}');
+          // log('database getChatRoom ${querySnapshot.docs.first.data()}');
         }
 
         // Return the stream of chatrooms for real-time updates
@@ -95,11 +94,11 @@ class DatabaseMethod {
             .where("users", arrayContains: myUsername.toUpperCase())
             .snapshots();
       } else {
-        log('Error: Username is null');
+        // log('Error: Username is null');
         throw Exception('Username is null');
       }
     } catch (e) {
-      log('Error fetching chat rooms: $e');
+      // log('Error fetching chat rooms: $e');
       rethrow;
     }
   }
