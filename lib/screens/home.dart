@@ -5,7 +5,6 @@ import 'package:chat_app_yt_shivam_gupta_may/services/shared_preferance.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'chat_page.dart';
 import 'chat_room_list_tile.dart';
 
@@ -28,13 +27,10 @@ class _HomeState extends State<Home> {
       ExtraChatRoomId;
 
   Stream? chatRoomStream;
-
   var querySearchList = [];
   var tempSearchList = [];
 
   Future<String> getChatRoomIdBYUsername(String a, String b) async {
-    // log("Home Page     //  getChatRoomIdByUsername //  checking incomnning data my username $a");
-    // log("Home Page    //  getChatRoomIdByUsername //  checking incomnning data  others username $b");
     String? myId = await SharedPreferanceHelper().getUserId();
 
     QuerySnapshot secondPersonChatUser =
@@ -44,11 +40,6 @@ class _HomeState extends State<Home> {
 
     setState(() {});
 
-    // log("Home Page // get Chatroomid // checking my usser id  " + myId!);
-    //
-    // log(" Home Page // get Chatroomid // checking others  usser id  ${id}  ");
-
-    // .codeUnitAt(0)      .codeUnitAt(0)
     if (int.parse(id) > int.parse(myId!)) {
       return "${myId.toString()}_${id.toString()}";
     } else {
@@ -65,13 +56,8 @@ class _HomeState extends State<Home> {
 
     setState(() {});
 
-    // log("HomePage    // onload function // shareprefarmce data");
-    // log('myUsername :: $myUsername');
-    // log('myName :: $myName');
-    // log('myEmail ::$myEmail');
-    // log('myId:: $myId');
-
     chatRoomStream = await DatabaseMethod().getChatRooms();
+
     setState(() {});
   }
 
@@ -81,15 +67,10 @@ class _HomeState extends State<Home> {
             myId.toString()
         ? ExtraChatRoomId!.substring(6, 11)
         : ExtraChatRoomId!.substring(0, ExtraChatRoomId!.indexOf('_'));
-
-    // log('ChatroomListTile //  getthis userinfo // others id = $id');
-
     DocumentSnapshot document =
         await FirebaseFirestore.instance.collection("users").doc(id).get();
 
     username = document.get('username');
-
-    // log('ChatroomListTile //  getthis userinfo // others username = $username');
 
     QuerySnapshot querySnapshot =
         await DatabaseMethod().getUserByUsername(username!.toUpperCase());
@@ -97,9 +78,6 @@ class _HomeState extends State<Home> {
     name = "${querySnapshot.docs[0]["name"]}";
 
     setState(() {});
-
-    // log("Home Page // Get This user Info   ====  ${querySnapshot.docs[0]["name"]}");
-    // log("Home page // Get other user info   ====  ${querySnapshot.docs[0]["id"]}");
   }
 
   intiateSearch(String value) {
@@ -118,7 +96,6 @@ class _HomeState extends State<Home> {
         for (int i = 0; i < docs.docs.length; ++i) {
           querySearchList.add(docs.docs[i].data());
         }
-        // log('querySearchList :: ${querySearchList.length}');
         tempSearchList = querySearchList;
         setState(() {});
       });
@@ -126,13 +103,8 @@ class _HomeState extends State<Home> {
       // log('else');
       tempSearchList = [];
       querySearchList.forEach((element) {
-        // if (element["username"].startsWith(capitalizadValue)) {
-        //   setState(() {
         tempSearchList.add(element);
         setState(() {});
-        // log('${tempSearchList.length}');
-        //   });
-        // }
       });
     }
   }
@@ -142,7 +114,6 @@ class _HomeState extends State<Home> {
     return StreamBuilder(
       stream: chatRoomStream,
       builder: (context, AsyncSnapshot snapshot) {
-        // log('This log is in Home.dart Page----------------------------${snapshot.hasData}-----${snapshot.data.docs.length}');
         return snapshot.hasData
             ? ListView.builder(
                 padding: EdgeInsets.zero,
@@ -152,8 +123,6 @@ class _HomeState extends State<Home> {
                   DocumentSnapshot ds = snapshot.data!.docs[index];
                   return GestureDetector(
                     onTap: () {
-                      // log('Home Page // ChatRoomList // Others name is  +${ds["users"][1]}');
-
                       ExtraChatRoomId = ds.id;
                       setState(() {});
 
@@ -197,8 +166,6 @@ class _HomeState extends State<Home> {
           "users": [myUsername, data["username"]]
         };
         await DatabaseMethod().createChatRoom(chatRoomId, chatRoomInfoMap);
-
-        // log('==========================================${data["username"]}');
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -249,23 +216,6 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-  }
-
-  Future<void> clearSharedPreferences() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    print("SharedPreferences data cleared!");
-  }
-
-  void _signOut() async {
-    FirebaseAuth.instance.currentUser;
-
-    await clearSharedPreferences();
-
-    await FirebaseAuth.instance.signOut();
-
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => SingIn()));
   }
 
   @override
@@ -351,7 +301,7 @@ class _HomeState extends State<Home> {
                           decoration: BoxDecoration(
                               color: const Color(0xFF3a2144),
                               borderRadius: BorderRadius.circular(10)),
-                          child: Icon(
+                          child: const Icon(
                             Icons.logout,
                             color: Color(0xFFc199cd),
                           )))
@@ -388,5 +338,16 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  void _signOut() async {
+    FirebaseAuth.instance.currentUser;
+
+    await SharedPreferanceHelper().clearSharedPreferences();
+
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SingIn()));
   }
 }

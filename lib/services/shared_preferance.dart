@@ -1,7 +1,7 @@
+import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferanceHelper {
-  // that random 10 digit number
   static String userIdKey = "USERKEy";
 
   Future<bool> saveUserId(String getUserId) async {
@@ -56,5 +56,11 @@ class SharedPreferanceHelper {
   Future<String?> getUserDisplayName() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     return sp.getString(displayNameKey);
+  }
+
+  Future<void> clearSharedPreferences() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    log("SharedPreferences data cleared!");
   }
 }

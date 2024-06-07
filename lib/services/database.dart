@@ -16,6 +16,30 @@ class DatabaseMethod {
         .get();
   }
 
+  Future<QuerySnapshot> getUserByUsername(String username) async {
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .where("username", isEqualTo: username)
+        .get();
+  }
+
+  Future<Stream<QuerySnapshot>> getDetailsByChatroomId(chatRoomId) async {
+    return FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatRoomId)
+        .collection("chats")
+        .orderBy("users")
+        .snapshots();
+  }
+
+  Future<QuerySnapshot> Search(String username) async {
+    var resulte = await FirebaseFirestore.instance
+        .collection("users")
+        .where('searchKey', isEqualTo: username.toUpperCase())
+        .get();
+    return resulte;
+  }
+
   createChatRoom(
       String chatRoomId, Map<String, dynamic> chatRoomInfoMap) async {
     final snapshot = await FirebaseFirestore.instance
@@ -33,14 +57,13 @@ class DatabaseMethod {
     }
   }
 
-  Future addMessage(String chatRoomId, String messageId,
-      Map<String, dynamic> messageInfoMap) async {
+  Future<Stream<QuerySnapshot>> getChatRoomMessage(chatRoomId) async {
     return FirebaseFirestore.instance
         .collection("chatrooms")
         .doc(chatRoomId)
         .collection("chats")
-        .doc(messageId)
-        .set(messageInfoMap);
+        .orderBy("time", descending: true)
+        .snapshots();
   }
 
   updateLastMesssageSend(
@@ -51,20 +74,14 @@ class DatabaseMethod {
         .update(lastMessageInfoMap);
   }
 
-  Future<Stream<QuerySnapshot>> getChatRoomMessage(chatRoomId) async {
+  Future addMessage(String chatRoomId, String messageId,
+      Map<String, dynamic> messageInfoMap) async {
     return FirebaseFirestore.instance
         .collection("chatrooms")
         .doc(chatRoomId)
         .collection("chats")
-        .orderBy("time", descending: true)
-        .snapshots();
-  }
-
-  Future<QuerySnapshot> getUserByUsername(String username) async {
-    return await FirebaseFirestore.instance
-        .collection("users")
-        .where("username", isEqualTo: username)
-        .get();
+        .doc(messageId)
+        .set(messageInfoMap);
   }
 
   Future<Stream<QuerySnapshot>> getChatRooms() async {
@@ -101,24 +118,5 @@ class DatabaseMethod {
       // log('Error fetching chat rooms: $e');
       rethrow;
     }
-  }
-
-  Future<QuerySnapshot> Search(String username) async {
-    // log('username this log is in database file:: ' + username.toString());
-    var resulte = await FirebaseFirestore.instance
-        .collection("users")
-        .where('searchKey', isEqualTo: username.toUpperCase())
-        .get();
-    // log('this log is in database file' + resulte.docs.length.toString());
-    return resulte;
-  }
-
-  Future<Stream<QuerySnapshot>> getDetailsByChatroomId(chatRoomId) async {
-    return FirebaseFirestore.instance
-        .collection("chatrooms")
-        .doc(chatRoomId)
-        .collection("chats")
-        .orderBy("users")
-        .snapshots();
   }
 }

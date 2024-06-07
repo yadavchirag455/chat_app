@@ -20,28 +20,26 @@ class _ChatPageState extends State<ChatPage> {
   final _messageController = TextEditingController();
 
   String? myUserName, myEmailId, myName, messageId, chatRoomId;
-
   Stream? messageStream;
-  getTheSharedPref() async {
-    myUserName = await SharedPreferanceHelper().getUserName();
-    myName = await SharedPreferanceHelper().getUserDisplayName();
-    myEmailId = await SharedPreferanceHelper().getUserEmail();
-    chatRoomId = await getChatRoomIdBYUsername(myUserName!, widget.username);
-    setState(() {});
 
-    // log(" Chat Page  // get the Share pewfwrance function  // checking my Data which is stored is write or wrong");
-    // log("Others username = $widget.username");
-    log(myUserName!);
-    log(myName!);
-    log(myEmailId!);
-    log(chatRoomId!);
-  }
-
-  onTheLoad() async {
-    await getTheSharedPref();
-    await getAndSetMessages();
-
-    setState(() {});
+  Widget chatMessage() {
+    return StreamBuilder(
+        stream: messageStream,
+        builder: (context, AsyncSnapshot snapshot) {
+          return snapshot.hasData
+              ? ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 90, top: 130),
+                  itemCount: snapshot.data.docs.length,
+                  reverse: true,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot ds = snapshot.data.docs[index];
+                    return chatMessageTile(
+                        ds["message"], myUserName == ds["sendBy"]);
+                  })
+              : const Center(
+                  child: CircularProgressIndicator(),
+                );
+        });
   }
 
   Widget chatMessageTile(String message, bool sendByMe) {
@@ -73,26 +71,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget chatMessage() {
-    return StreamBuilder(
-        stream: messageStream,
-        builder: (context, AsyncSnapshot snapshot) {
-          return snapshot.hasData
-              ? ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 90, top: 130),
-                  itemCount: snapshot.data.docs.length,
-                  reverse: true,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot ds = snapshot.data.docs[index];
-                    return chatMessageTile(
-                        ds["message"], myUserName == ds["sendBy"]);
-                  })
-              : const Center(
-                  child: CircularProgressIndicator(),
-                );
-        });
-  }
-
   addMessage(bool sendClick) {
     if (_messageController.text != null) {
       String message = _messageController.text;
@@ -104,6 +82,7 @@ class _ChatPageState extends State<ChatPage> {
       Map<String, dynamic> messageInfoMap = {
         "message": message,
         "sendBy": myUserName,
+        "recievedBY": widget.username,
         "ts": formatedDateTime,
         "time": FieldValue.serverTimestamp()
       };
@@ -130,12 +109,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<String> getChatRoomIdBYUsername(String a, String b) async {
-    // log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data my Username $a");
-    // log("Chatpage     //  getChatRoomIdByUsername //  checking incomnning data others Usernaemm $b");
     String? myId = await SharedPreferanceHelper().getUserId();
-    // String? secondPersonUsernameChatUser =
-    //     (await DatabaseMethod().getUserByUsername(a)) as String?;
-
     QuerySnapshot secondPersonChatUser =
         await DatabaseMethod().getUserByUsername(b);
 
@@ -143,11 +117,6 @@ class _ChatPageState extends State<ChatPage> {
 
     setState(() {});
 
-    // log("MyID  " + myId!);
-    //
-    // log(" Second Person  on chatpage ${id}  ");
-
-    // .codeUnitAt(0)      .codeUnitAt(0)
     if (int.parse(id) > int.parse(myId!)) {
       log((id.codeUnitAt(0) > myId.codeUnitAt(0)).toString());
       return "${myId.toString()}_${id.toString()}";
@@ -158,6 +127,21 @@ class _ChatPageState extends State<ChatPage> {
 
   getAndSetMessages() async {
     messageStream = await DatabaseMethod().getChatRoomMessage(chatRoomId);
+    setState(() {});
+  }
+
+  getTheSharedPref() async {
+    myUserName = await SharedPreferanceHelper().getUserName();
+    myName = await SharedPreferanceHelper().getUserDisplayName();
+    myEmailId = await SharedPreferanceHelper().getUserEmail();
+    chatRoomId = await getChatRoomIdBYUsername(myUserName!, widget.username);
+    setState(() {});
+  }
+
+  onTheLoad() async {
+    await getTheSharedPref();
+    await getAndSetMessages();
+
     setState(() {});
   }
 
@@ -191,7 +175,6 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   GestureDetector(
                       onTap: () {
-                        // log('back button in chat ---- basically on chat page is tapped');
                         Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (context) => Home()));
                       },
